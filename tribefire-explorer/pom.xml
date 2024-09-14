@@ -20,7 +20,7 @@ limitations under the License.
         <version>[3.0,3.1)</version>
     </parent>
     <artifactId>tribefire-explorer</artifactId>
-    <version>3.0.333</version>
+    <version>3.0.334</version>
     <packaging>war</packaging>
     <properties>
         <archetype>war</archetype>
