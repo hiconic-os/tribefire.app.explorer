@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <!--
 Copyright BRAINTRIBE TECHNOLOGY GMBH, Austria, 2002-2022
 
@@ -13,7 +14,6 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 -->
-<?xml version="1.0" encoding="UTF-8"?>
 <web-app>
 	<display-name>TribefireExplorer-3.0</display-name>
 	<description>tribefire Explorer version 3.0</description>
