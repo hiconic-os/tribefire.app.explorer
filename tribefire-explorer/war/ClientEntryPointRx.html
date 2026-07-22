@@ -117,6 +117,7 @@
     </style>
     -->
 
+      <script type="module" src="runtime-config-loader.js"></script>
       <script type="text/javascript">
       	var progressBarValue = 1;
       	var timer;
@@ -260,17 +261,10 @@
   		}
   		
   		function getServicesURL() {
-        	var nodes = document.getElementsByTagName("meta");
-        	var url = "/tribefire-services/";
-        	
-        	for (var i = 0; i < nodes.length; i++) {
-        		var node = nodes[i];
-        		if (node.getAttribute("name") == "tf:TRIBEFIRE_PUBLIC_SERVICES_URL") {
-        			url = node.getAttribute("content");
-        			if (!url.endsWith("/"))
-        				url = url + "/";
-        		}
-        	}
+			var runtime = window.hiconicRuntime || {};
+			var url = runtime.servicesUrl || "/tribefire-services/";
+			if (!url.endsWith("/"))
+				url = url + "/";
         	
         	if (url.includes("http")) //absolute url
 				return url;
