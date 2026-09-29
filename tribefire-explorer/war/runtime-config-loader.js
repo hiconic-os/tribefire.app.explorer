@@ -12,40 +12,48 @@
 // limitations under the License.
 // ============================================================================
 
-let runtime = {};
+globalThis.hiconicRuntimeReady = loadRuntimeConfiguration();
 
-try {
-	const response = await fetch(new URL("runtime-config.json", import.meta.url), { cache: "no-store" });
-	if (response.ok)
-		runtime = await response.json();
-	else
-		console.warn(`Cannot load Explorer runtime configuration: ${response.status} ${response.statusText}`);
-} catch (error) {
-	console.warn("Cannot load Explorer runtime configuration", error);
+async function loadRuntimeConfiguration() {
+	let runtime = {};
+
+	try {
+		const response = await fetch(new URL("runtime-config.json", import.meta.url), { cache: "no-store" });
+		if (response.ok)
+			runtime = await response.json();
+		else
+			console.warn(`Cannot load Explorer runtime configuration: ${response.status} ${response.statusText}`);
+	} catch (error) {
+		console.warn("Cannot load Explorer runtime configuration", error);
+	}
+
+	globalThis.hiconicRuntime = Object.freeze(runtime);
+	installLegacyRuntimeProperties(runtime);
+	return globalThis.hiconicRuntime;
 }
 
-globalThis.hiconicRuntime = Object.freeze(runtime);
+function installLegacyRuntimeProperties(runtime) {
+	// Compatibility bridge for GWT modules which still consume TribefireRuntime
+	// properties from tf:* meta elements. New code consumes hiconicRuntime directly.
+	const legacyPropertyNames = {
+		servicesUrl: "TRIBEFIRE_PUBLIC_SERVICES_URL",
+		websocketUrl: "TRIBEFIRE_WEBSOCKET_URL",
+		controlCenterUrl: "TRIBEFIRE_CONTROL_CENTER_URL",
+		explorerUrl: "TRIBEFIRE_EXPLORER_URL",
+		tribefireJsUrl: "TRIBEFIRE_JS_URL",
+		platformSetupSupport: "TRIBEFIRE_PLATFORM_SETUP_SUPPORT",
+		webLoginRelativePath: "TRIBEFIRE_WEB_LOGIN_RELATIVE_PATH",
+		webReaderUrl: "TRIBEFIRE_WEBREADER_URL"
+	};
 
-// Compatibility bridge for GWT modules which still consume TribefireRuntime
-// properties from tf:* meta elements. New code consumes hiconicRuntime directly.
-const legacyPropertyNames = {
-	servicesUrl: "TRIBEFIRE_PUBLIC_SERVICES_URL",
-	websocketUrl: "TRIBEFIRE_WEBSOCKET_URL",
-	controlCenterUrl: "TRIBEFIRE_CONTROL_CENTER_URL",
-	explorerUrl: "TRIBEFIRE_EXPLORER_URL",
-	tribefireJsUrl: "TRIBEFIRE_JS_URL",
-	platformSetupSupport: "TRIBEFIRE_PLATFORM_SETUP_SUPPORT",
-	webLoginRelativePath: "TRIBEFIRE_WEB_LOGIN_RELATIVE_PATH",
-	webReaderUrl: "TRIBEFIRE_WEBREADER_URL"
-};
+	Object.entries(legacyPropertyNames).forEach(([runtimeName, legacyName]) => {
+		const value = runtime[runtimeName];
+		if (value == null || document.querySelector(`meta[name="tf:${legacyName}"]`))
+			return;
 
-Object.entries(legacyPropertyNames).forEach(([runtimeName, legacyName]) => {
-	const value = runtime[runtimeName];
-	if (value == null || document.querySelector(`meta[name="tf:${legacyName}"]`))
-		return;
-
-	const meta = document.createElement("meta");
-	meta.name = `tf:${legacyName}`;
-	meta.content = String(value);
-	document.head.appendChild(meta);
-});
+		const meta = document.createElement("meta");
+		meta.name = `tf:${legacyName}`;
+		meta.content = String(value);
+		document.head.appendChild(meta);
+	});
+}

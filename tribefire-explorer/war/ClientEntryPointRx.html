@@ -259,6 +259,16 @@
   			loadLogo(servicesUrl, accessId);
   			loadTitle(servicesUrl, accessId);
   		}
+
+		function initializeClient() {
+			startProgressBar();
+			var runtimeReady = window.hiconicRuntimeReady || Promise.resolve();
+			runtimeReady.then(function() {
+				loadLocale();
+				inject();
+				loadLogoAndTitle();
+			});
+		}
   		
   		function getServicesURL() {
 			var runtime = window.hiconicRuntime || {};
@@ -382,7 +392,7 @@
       </script>
   </head>
 
-  <body id="clientEntryPoint" class="oneColFixCtr" onload="startProgressBar(); loadLocale(); inject(); loadLogoAndTitle();">
+  <body id="clientEntryPoint" class="oneColFixCtr" onload="initializeClient();">
 
     <!--add loading indicator while the app is being loaded-->
     <div id="loading">
